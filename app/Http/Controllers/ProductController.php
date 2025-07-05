@@ -20,17 +20,33 @@ class ProductController extends Controller
         $unpaidCount = Product::where('status', 'Non Payer')->count();
         $totalProducts = Product::count();
 
+        $spicyGmStock = Product::where('type', 'Épicée')->where('family', 'GM')->sum('quantity');
+        $spicyPmStock = Product::where('type', 'Épicée')->where('family', 'PM')->sum('quantity');
+        $hotGmStock = Product::where('type', 'Pimentée')->where('family', 'GM')->sum('quantity');
+        $hotPmStock = Product::where('type', 'Pimentée')->where('family', 'PM')->sum('quantity');
+        $naturalGmStock = Product::where('type', 'Nature')->where('family', 'GM')->sum('quantity');
+        $naturalPmStock = Product::where('type', 'Nature')->where('family', 'PM')->sum('quantity');
+
+        $totalSpicyStock = $spicyGmStock + $spicyPmStock;
+        $totalHotStock = $hotGmStock + $hotPmStock;
+        $totalNaturalStock = $naturalGmStock + $naturalPmStock;
+        $totalStock = Product::sum('quantity');
+
         $stats = [
             'gm' => $gmCount,
             'pm' => $pmCount,
-            'spicy' => Product::where('type', 'Épicée')->count(),
-            'hot' => Product::where('type', 'Pimentée')->count(),
-            'natural' => Product::where('type', 'Nature')->count(),
+            'spicy' => $totalSpicyStock,
+            'hot' => $totalHotStock,
+            'natural' => $totalNaturalStock,
+            'total_stock' => $totalStock,
         ];
 
         $recentProducts = Product::latest()->take(5)->get();
 
-        return view('dashboard', compact('stats', 'recentProducts', 'gmCount', 'pmCount', 'paidCount', 'unpaidCount', 'totalProducts'));
+        return view('dashboard', compact('stats', 'recentProducts', 'gmCount', 'pmCount', 'paidCount', 'unpaidCount', 'totalProducts',
+            'totalSpicyStock', 'totalHotStock', 'totalNaturalStock', 'totalStock',
+            'spicyGmStock', 'spicyPmStock', 'hotGmStock', 'hotPmStock', 'naturalGmStock', 'naturalPmStock'
+        ));
     }
 
     /**

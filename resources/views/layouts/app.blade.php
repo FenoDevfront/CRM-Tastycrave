@@ -221,6 +221,13 @@
         .bg-info-custom {
             background-color: #17a2b8 !important;
         }
+        span .w-5 {
+            width: 30px;
+            height: 30px;
+        }
+        .mt-4 nav[role="navigation"] > div:first-child, .mt-4 nav[role="navigation"] > .hidden > div:first-child {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -241,6 +248,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('products.index') }}">Produits</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('stock.index') }}">Stock</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
