@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 text-primary-emphasis">Modifier : {{ $product->name }}</h1>
+        <h1 class="h2 text-primary-emphasis">Modifier le produit</h1>
         <a href="{{ route('products.index') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Retour à la liste
         </a>
@@ -20,13 +20,7 @@
                 @csrf
                 @method('PUT')
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="name" class="form-label">Nom du produit</label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $product->name) }}" required>
-                        @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    
                     <div class="col-md-6">
                         <label for="customer_name" class="form-label">Nom du client</label>
                         <input type="text" class="form-control @error('customer_name') is-invalid @enderror" id="customer_name" name="customer_name" value="{{ old('customer_name', $product->customer_name) }}" required>
@@ -58,7 +52,7 @@
                     <div class="col-md-4">
                         <label for="price" class="form-label">Prix</label>
                         <div class="input-group">
-                            <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price', $product->price) }}" required>
+                            <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price', $product->price) }}" required readonly>
                             <span class="input-group-text">Ariary</span>
                         </div>
                         @error('price')
@@ -104,4 +98,36 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const familySelect = document.getElementById('family');
+    const quantityInput = document.getElementById('quantity');
+    const priceInput = document.getElementById('price');
+
+    const prices = {
+        'PM': 800,
+        'GM': 1500
+    };
+
+    function calculatePrice() {
+        const family = familySelect.value;
+        const quantity = parseInt(quantityInput.value, 10);
+        
+        if (family && quantity > 0 && prices[family]) {
+            priceInput.value = quantity * prices[family];
+        } else {
+            priceInput.value = '{{ old('price', $product->price) }}';
+        }
+    }
+
+    familySelect.addEventListener('change', calculatePrice);
+    quantityInput.addEventListener('input', calculatePrice);
+
+    // Initial calculation on page load
+    calculatePrice();
+});
+</script>
 @endpush

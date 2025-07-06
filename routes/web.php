@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
     
     Route::resource('products', ProductController::class);
     Route::get('/stock', [App\Http\Controllers\StockController::class, 'index'])->name('stock.index');
+    Route::post('/stock/add', [App\Http\Controllers\StockController::class, 'addStock'])->name('stock.add');
     Route::put('/stock/{product}', [App\Http\Controllers\StockController::class, 'update'])->name('stock.update');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });

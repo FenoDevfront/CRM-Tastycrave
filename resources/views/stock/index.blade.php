@@ -1,11 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Gestion de Stock')
+@section('title', 'État du Stock')
 
 @section('content')
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 text-primary-emphasis">Gestion de Stock</h1>
+        <h1 class="h2 text-primary-emphasis">État du Stock</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStockModal">
+            <i class="fas fa-plus me-2"></i>Ajouter du Stock
+        </button>
     </div>
 
     @if (session('success'))
@@ -16,42 +19,85 @@
     @endif
 
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
-            <h5 class="mb-0 text-primary-emphasis">Produits en Stock</h5>
-        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Type de Produit</th>
-                            <th>Famille</th>
-                            <th>Statut</th>
-                            <th>Quantité Totale</th>
+                            <th class="text-center">Stock Physique Total</th>
+                            <th class="text-center">Vendu / Livré</th>
+                            <th class="text-center fw-bold">Disponible (Non Vendu)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($stockData as $item)
+                        @forelse ($stocks as $stock)
                             <tr>
-                                <td class="fw-bold">{{ $item->type }}</td>
-                                <td><span class="badge bg-{{ $item->family == 'GM' ? 'primary' : 'success' }} bg-opacity-75">{{ $item->family }}</span></td>
-                                <td>
-                                    <span class="badge bg-{{ $item->status == 'Payer' ? 'success' : 'danger' }}">
-                                        {{ $item->status == 'Payer' ? 'Livré' : 'Non Livré' }}
-                                    </span>
+                                <td class="fw-bold">
+                                    <span class="badge bg-{{ $stock->family == 'GM' ? 'primary' : 'success' }}">{{ $stock->family }}</span>
+                                    {{ $stock->type }}
                                 </td>
-                                <td>{{ $item->total_quantity }}</td>
+                                <td class="text-center">{{ $stock->total_quantity }}</td>
+                                <td class="text-center">{{ $stock->total_sold }}</td>
+                                @php
+                                    $available = $stock->total_quantity - $stock->total_sold;
+                                @endphp
+                                <td class="text-center fw-bold fs-5 {{ $available <= 0 ? 'text-danger' : '' }}">
+                                    {{ max(0, $available) }}
+                                </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="4" class="text-center text-muted py-4">
-                                    Aucune donnée de stock trouvée.
+                                    Aucun stock à afficher.
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'Ajout de Stock -->
+<div class="modal fade" id="addStockModal" tabindex="-1" aria-labelledby="addStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addStockModalLabel">Ajouter du Stock Brut</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('stock.add') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="family" class="form-label">Famille</label>
+                        <select class="form-select" id="family" name="family" required>
+                            <option value="" disabled selected>Sélectionner une famille</option>
+                            <option value="GM">GM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="type" class="form-label">Type</label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="" disabled selected>Sélectionner un type</option>
+                            <option value="Épicée">Épicée</option>
+                            <option value="Pimentée">Pimentée</option>
+                            <option value="Nature">Nature</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantité à ajouter</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter au Stock</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

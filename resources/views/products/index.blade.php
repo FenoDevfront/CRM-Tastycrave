@@ -61,7 +61,6 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Nom Produit</th>
                             <th>Client</th>
                             <th>Famille</th>
                             <th>Type</th>
@@ -74,7 +73,6 @@
                     <tbody>
                         @forelse ($products as $product)
                             <tr>
-                                <td class="fw-bold">{{ $product->name }}</td>
                                 <td>{{ $product->customer_name }}</td>
                                 <td><span class="badge bg-{{ $product->family == 'GM' ? 'primary' : 'success' }} bg-opacity-75">{{ $product->family }}</span></td>
                                 <td>{{ $product->type }}</td>

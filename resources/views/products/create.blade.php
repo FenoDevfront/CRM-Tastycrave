@@ -12,27 +12,10 @@
     </div>
 
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
-            <h5 class="mb-0 text-primary-emphasis">Détails du produit</h5>
-        </div>
         <div class="card-body p-4">
             <form action="{{ route('products.store') }}" method="POST">
                 @csrf
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="name" class="form-label">Nom du produit</label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
-                        @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-md-6">
-                        <label for="customer_name" class="form-label">Nom du client</label>
-                        <input type="text" class="form-control @error('customer_name') is-invalid @enderror" id="customer_name" name="customer_name" value="{{ old('customer_name') }}" required>
-                        @error('customer_name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="col-md-6">
                         <label for="family" class="form-label">Famille</label>
                         <select class="form-select @error('family') is-invalid @enderror" id="family" name="family" required>
@@ -56,24 +39,31 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-4">
-                        <label for="price" class="form-label">Prix</label>
-                        <div class="input-group">
-                            <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price') }}" required>
-                            <span class="input-group-text">Ariary</span>
-                        </div>
-                        @error('price')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label for="quantity" class="form-label">Quantité</label>
                         <input type="number" class="form-control @error('quantity') is-invalid @enderror" id="quantity" name="quantity" value="{{ old('quantity') }}" required>
                         @error('quantity')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
+                        <label for="price" class="form-label">Prix</label>
+                        <div class="input-group">
+                            <input type="number" step="1" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price') }}" required readonly>
+                            <span class="input-group-text">Ariary</span>
+                        </div>
+                        @error('price')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="customer_name" class="form-label">Nom du client</label>
+                        <input type="text" class="form-control @error('customer_name') is-invalid @enderror" id="customer_name" name="customer_name" value="{{ old('customer_name') }}" required>
+                        @error('customer_name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
                         <label for="status" class="form-label">Statut</label>
                         <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
                             <option value="" disabled selected>Sélectionner un statut</option>
@@ -86,7 +76,7 @@
                     </div>
                     <div class="col-12">
                         <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="4">{{ old('description') }}</textarea>
+                        <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3">{{ old('description') }}</textarea>
                         @error('description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -104,6 +94,34 @@
 </div>
 @endsection
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const familySelect = document.getElementById('family');
+    const quantityInput = document.getElementById('quantity');
+    const priceInput = document.getElementById('price');
+
+    const prices = {
+        'PM': 800,
+        'GM': 1500
+    };
+
+    function calculatePrice() {
+        const family = familySelect.value;
+        const quantity = parseInt(quantityInput.value, 10);
+        
+        if (family && quantity > 0 && prices[family]) {
+            priceInput.value = quantity * prices[family];
+        } else {
+            priceInput.value = '';
+        }
+    }
+
+    familySelect.addEventListener('change', calculatePrice);
+    quantityInput.addEventListener('input', calculatePrice);
+});
+</script>
+@endpush
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 @endpush
