@@ -22,6 +22,8 @@ RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /e
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf    
+
 EXPOSE 80
 
 CMD ["apache2-foreground"]
