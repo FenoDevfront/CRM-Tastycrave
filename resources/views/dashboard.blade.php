@@ -5,6 +5,17 @@
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="h2 text-primary-emphasis mb-4">Tableau de Bord</h1>
+    @auth
+        @php
+            $userName = Auth::user()->name;
+            // Attempt to extract name before '@' if it looks like an email
+            if (filter_var($userName, FILTER_VALIDATE_EMAIL)) {
+                $userName = explode('@', $userName)[0];
+            }
+            $userName = ucfirst($userName); // Capitalize first letter
+        @endphp
+        <p class="text-muted mb-4">Bonjour, <strong class="text-primary">{{ $userName }}</strong> ! Bienvenue sur votre tableau de bord.</p>
+    @endauth
 
     <div class="row g-4 mb-4">
         <!-- Unités Disponibles par Type -->

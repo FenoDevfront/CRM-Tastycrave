@@ -31,20 +31,22 @@ class LoginController extends Controller
         }
 
         $user = User::where('email', $googleUser->email)->first();
-        $nameFromEmail = explode('@', $googleUser->email)[0];
+        
+        // Prioritize Google's provided name, fallback to email prefix
+        $userName = $googleUser->name ?? explode('@', $googleUser->email)[0];
 
         if ($user) {
-            // If user exists, update their Google ID, tokens, and name from email
+            // If user exists, update their Google ID, tokens, and name
             $user->update([
-                'name' => $nameFromEmail,
+                'name' => $userName,
                 'google_id' => $googleUser->id,
                 'google_token' => $googleUser->token,
                 'google_refresh_token' => $googleUser->refreshToken,
             ]);
         } else {
-            // If user does not exist, create a new one with name from email
+            // If user does not exist, create a new one
             $user = User::create([
-                'name' => $nameFromEmail,
+                'name' => $userName,
                 'email' => $googleUser->email,
                 'google_id' => $googleUser->id,
                 'google_token' => $googleUser->token,
