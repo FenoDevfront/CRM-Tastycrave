@@ -21,11 +21,11 @@
                                     @php
                                         $iconClass = '';
                                         if ($stock->type == 'Épicée') {
-                                            $iconClass = 'fas fa-pepper-hot text-danger'; // Font Awesome icon for spicy
+                                            $iconClass = 'fas fa-seedling text-success'; // Font Awesome icon for herb/plant (onion/parsley)
                                         } elseif ($stock->type == 'Pimentée') {
-                                            $iconClass = 'fas fa-fire text-warning'; // Font Awesome icon for chili/pimentée
+                                            $iconClass = 'fas fa-pepper-hot text-danger'; // Font Awesome icon for chili
                                         } elseif ($stock->type == 'Nature') {
-                                            $iconClass = 'fas fa-leaf text-success'; // Font Awesome icon for nature
+                                            $iconClass = 'fas fa-leaf text-secondary'; // Font Awesome icon for nature/plain
                                         }
                                     @endphp
                                     @if($iconClass)
