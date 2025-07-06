@@ -20,5 +20,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock', [App\Http\Controllers\StockController::class, 'index'])->name('stock.index');
     Route::post('/stock/add', [App\Http\Controllers\StockController::class, 'addStock'])->name('stock.add');
     Route::put('/stock/{product}', [App\Http\Controllers\StockController::class, 'update'])->name('stock.update');
+    Route::put('/stock/aggregated', [App\Http\Controllers\StockController::class, 'updateAggregatedStock'])->name('stock.updateAggregated');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
