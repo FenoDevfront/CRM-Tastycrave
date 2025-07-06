@@ -18,11 +18,15 @@ RUN composer install --no-dev --optimize-autoloader
 # Modifier DocumentRoot vers public
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
+# Forcer Apache à écouter sur 0.0.0.0
+RUN echo "Listen 0.0.0.0:80" >> /etc/apache2/ports.conf
+
+# Supprimer les warnings Apache
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf 
+
 # Permissions correctes pour storage et cache
 RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
-
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf    
+    && chmod -R 775 storage bootstrap/cache  
 
 EXPOSE 80
 
