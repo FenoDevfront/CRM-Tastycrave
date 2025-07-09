@@ -21,7 +21,7 @@
         <!-- Unités Disponibles par Type -->
         <div class="col-lg-4 col-md-6">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3">
+                <div class="card-header py-3">
                     <h5 class="mb-0 text-primary-emphasis">Unités Disponibles</h5>
                 </div>
                 <div class="card-body p-0">
@@ -60,7 +60,7 @@
         <!-- Graphique de Répartition du Stock -->
         <div class="col-lg-8 col-md-6">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3">
+                <div class="card-header py-3">
                     <h5 class="mb-0 text-primary-emphasis">Stock Disponible par Type</h5>
                 </div>
                 <div class="card-body">
@@ -74,7 +74,7 @@
         <!-- Graphique des Ventes Mensuelles -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
+                <div class="card-header py-3">
                     <h5 class="mb-0 text-primary-emphasis">Ventes Mensuelles ({{ now()->year }})</h5>
                 </div>
                 <div class="card-body">
@@ -86,7 +86,7 @@
         <!-- Statut des Paiements -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3">
+                <div class="card-header py-3">
                     <h5 class="mb-0 text-primary-emphasis">Statut des Paiements</h5>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
@@ -115,11 +115,11 @@
                             </div>
                             <p class="mb-1">
                                 <span class="badge bg-{{ $product->family == 'GM' ? 'primary' : 'success' }}">{{ $product->family }}</span>
-                                <span class="badge bg-info text-dark">{{ $product->type }}</span>
+                                <span class="badge bg-info">{{ $product->type }}</span>
                             </p>
                             <p class="fw-bold mb-0">{{ number_format($product->price, 0, ',', ' ') }} Ar</p>
                         </div>
-                        <div class="card-footer bg-white border-0 pt-0">
+                        <div class="card-footer border-0 pt-0">
                             <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-outline-primary">Voir les détails</a>
                         </div>
                     </div>
@@ -140,86 +140,129 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // 1. Graphique du Stock Disponible
-    const stockData = @json($stockData);
-    const stockLabels = ['Épicée', 'Pimentée', 'Nature'];
-    const gmData = [0, 0, 0];
-    const pmData = [0, 0, 0];
+    let stockChart, salesChart, statusChart;
 
-    stockData.forEach(item => {
-        const index = stockLabels.indexOf(item.type);
-        if (index > -1) {
-            const available = Math.max(0, item.available_stock);
-            if (item.family === 'GM') {
-                gmData[index] += available;
-            } else if (item.family === 'PM') {
-                pmData[index] += available;
-            }
-        }
-    });
+    function getGlobalChartOptions() {
+        const theme = document.documentElement.getAttribute('data-bs-theme');
+        const gridColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        const textColor = theme === 'dark' ? '#dee2e6' : '#495057';
 
-    new Chart(document.getElementById('stockChart'), {
-        type: 'bar',
-        data: {
-            labels: stockLabels,
-            datasets: [
-                { label: 'GM', data: gmData, backgroundColor: '#a36628', borderRadius: 5 },
-                { label: 'PM', data: pmData, backgroundColor: '#9e7b58', borderRadius: 5 }
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } },
-            scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
-        }
-    });
-
-    // 2. Graphique des Ventes Mensuelles
-    const salesChartData = @json($salesChartData);
-    new Chart(document.getElementById('salesChart'), {
-        type: 'line',
-        data: {
-            labels: salesChartData.labels,
-            datasets: [{
-                label: 'Chiffre d\'affaires',
-                data: salesChartData.data,
-                borderColor: '#a36628',
-                backgroundColor: 'rgba(163, 102, 40, 0.2)',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: textColor
+                    }
+                }
+            },
             scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        color: gridColor
+                    },
+                    ticks: {
+                        color: textColor
+                    }
+                },
                 y: {
                     beginAtZero: true,
+                    grid: {
+                        color: gridColor
+                    },
                     ticks: {
-                        callback: function(value) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(value); }
+                        color: textColor
                     }
                 }
             }
-        }
-    });
+        };
+    }
 
-    // 3. Graphique du Statut des Paiements
-    const statusData = @json($statusPercentages);
-    new Chart(document.getElementById('statusChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Payé', 'Non Payé'],
-            datasets: [{
-                data: [statusData.Payer, statusData['Non Payer']],
-                backgroundColor: ['#9e7b58', '#ceb79f'],
-                borderColor: ['#9e7b58', '#ceb79f'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
+    function renderCharts() {
+        const globalOptions = getGlobalChartOptions();
+
+        // 1. Graphique du Stock Disponible
+        const stockData = @json($stockData);
+        const stockLabels = ['Épicée', 'Pimentée', 'Nature'];
+        const gmData = [0, 0, 0];
+        const pmData = [0, 0, 0];
+
+        stockData.forEach(item => {
+            const index = stockLabels.indexOf(item.type);
+            if (index > -1) {
+                const available = Math.max(0, item.available_stock);
+                if (item.family === 'GM') {
+                    gmData[index] += available;
+                } else if (item.family === 'PM') {
+                    pmData[index] += available;
+                }
+            }
+        });
+
+        if (stockChart) stockChart.destroy();
+        stockChart = new Chart(document.getElementById('stockChart'), {
+            type: 'bar',
+            data: {
+                labels: stockLabels,
+                datasets: [
+                    { label: 'GM', data: gmData, backgroundColor: '#a36628', borderRadius: 5 },
+                    { label: 'PM', data: pmData, backgroundColor: '#9e7b58', borderRadius: 5 }
+                ]
+            },
+            options: globalOptions
+        });
+
+        // 2. Graphique des Ventes Mensuelles
+        const salesChartData = @json($salesChartData);
+        const salesChartOptions = {
+            ...globalOptions,
+            scales: {
+                ...globalOptions.scales,
+                y: {
+                    ...globalOptions.scales.y,
+                    ticks: {
+                        ...globalOptions.scales.y.ticks,
+                        callback: function(value) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(value); }
+                    }
+                }
+            },
             plugins: {
-                legend: { position: 'bottom' },
+                ...globalOptions.plugins,
+                legend: { display: false }
+            }
+        };
+        if (salesChart) salesChart.destroy();
+        salesChart = new Chart(document.getElementById('salesChart'), {
+            type: 'line',
+            data: {
+                labels: salesChartData.labels,
+                datasets: [{
+                    label: 'Chiffre d\'affaires',
+                    data: salesChartData.data,
+                    borderColor: '#a36628',
+                    backgroundColor: 'rgba(163, 102, 40, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: salesChartOptions
+        });
+
+        // 3. Graphique du Statut des Paiements
+        const statusData = @json($statusPercentages);
+        const statusChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: globalOptions.plugins.legend.labels.color
+                    }
+                },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -228,7 +271,37 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             }
-        }
+        };
+        if (statusChart) statusChart.destroy();
+        statusChart = new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Payé', 'Non Payé'],
+                datasets: [{
+                    data: [statusData.Payer, statusData['Non Payer']],
+                    backgroundColor: ['#9e7b58', '#ceb79f'],
+                    borderColor: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#1a1a1a' : '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: statusChartOptions
+        });
+    }
+
+    // Initial render
+    renderCharts();
+
+    // Re-render charts on theme change
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach(mutation => {
+            if (mutation.attributeName === 'data-bs-theme') {
+                renderCharts();
+            }
+        });
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true
     });
 });
 </script>

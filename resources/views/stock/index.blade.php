@@ -22,7 +22,7 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
-                    <thead class="table-light">
+                    <thead>
                         <tr>
                             <th>Type de Produit</th>
                             <th class="text-center">Stock Physique Total</th>

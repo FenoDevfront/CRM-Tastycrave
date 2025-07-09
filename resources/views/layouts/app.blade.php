@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,16 +18,31 @@
             --bs-tertiary-rgb: 206, 183, 159; /* #ceb79f */
             --bs-tertiary: #ceb79f;
             --bs-body-font-family: 'Inter', sans-serif;
-            --bs-body-color: #34495E; /* Keeping original body color for readability */
+        }
+
+        [data-bs-theme="light"] {
+            --bs-body-bg: #f8f9fa;
+            --bs-body-color: #212529;
+            --bs-tertiary-bg: #ffffff;
+            --bs-emphasis-color: #000;
+        }
+
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #1a1a1a;
+            --bs-body-color: #dee2e6;
+            --bs-tertiary-bg: #2c2c2c;
+            --bs-emphasis-color: #fff;
         }
 
         body {
             padding-top: 70px;
-            background-color: #f8f9fa;
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
         }
 
         .navbar {
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 1px solid var(--bs-border-color);
+            background-color: var(--bs-tertiary-bg) !important;
         }
 
         .navbar-brand {
@@ -37,7 +52,7 @@
 
         .nav-link {
             font-weight: 500;
-            color: #000; /* Black color for default text */
+            color: var(--bs-emphasis-color);
             transition: color 0.2s ease-in-out;
         }
 
@@ -52,10 +67,11 @@
         }
 
         .card {
-            border: none;
+            border: 1px solid var(--bs-border-color);
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
+            background-color: var(--bs-tertiary-bg);
         }
         
         .card:hover {
@@ -64,8 +80,8 @@
         }
 
         .card-header {
-            background-color: #fff;
-            border-bottom: 1px solid #f0f0f0;
+            background-color: var(--bs-tertiary-bg);
+            border-bottom: 1px solid var(--bs-border-color);
             font-weight: 600;
         }
         
@@ -85,10 +101,14 @@
             background-color: var(--bs-primary);
             border-color: var(--bs-primary);
         }
+
+        .theme-switcher {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <nav class="navbar navbar-expand-lg shadow-sm fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ route('dashboard') }}">
                 <img src="/images/Tastycrave.jpg" alt="Tastycrave Logo" style="height: 32px; margin-right: 10px;">
@@ -110,7 +130,12 @@
                         <a class="nav-link" href="{{ route('stock.index') }}">Stock</a>
                     </li>
                 </ul>
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto d-flex flex-row align-items-center">
+                    <li class="nav-item me-3">
+                        <a class="nav-link theme-switcher" id="theme-switcher">
+                            <i class="fas fa-moon"></i>
+                        </a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             {{ Auth::user()->name }}
@@ -138,16 +163,44 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <script>
+        // Theme Switcher Logic
+        (function() {
+            const themeSwitcher = document.getElementById('theme-switcher');
+            const themeIcon = themeSwitcher.querySelector('i');
+            const htmlElement = document.documentElement;
+
+            function setTheme(theme) {
+                htmlElement.setAttribute('data-bs-theme', theme);
+                if (theme === 'dark') {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+                localStorage.setItem('theme', theme);
+            }
+
+            themeSwitcher.addEventListener('click', () => {
+                const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+
+            // Load theme from local storage on page load
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        })();
+    </script>
+
     @stack('scripts')
 
     <script type="text/javascript">
         jQuery(document).ready(function(){
             let selector = ".navbar-nav .nav-item .nav-link";
-            jQuery(selector).on('click', function(){
-                jQuery(selector).closest('.nav-item').removeClass('active');
-                jQuery(this).closest('.nav-item').addClass('active');
-            });
-
+            
             // Set active class on page load based on URL
             const currentUrl = window.location.href;
             jQuery(selector).each(function() {
@@ -156,6 +209,12 @@
                 if (linkUrl === currentPath) {
                     jQuery(this).closest('.nav-item').addClass('active');
                 }
+            });
+
+            // The click event for active class should be after the initial setup
+            jQuery(selector).on('click', function(){
+                jQuery(selector).closest('.nav-item').removeClass('active');
+                jQuery(this).closest('.nav-item').addClass('active');
             });
         });
     </script>
